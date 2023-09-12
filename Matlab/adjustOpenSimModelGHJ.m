@@ -17,7 +17,7 @@ import org.opensim.modeling.*
 model_name = 'FullShoulderModel_glC_viaRTSA.osim'; %'FullShoulderModelglC_understand_jointDefs_implant.osim';_viaRTSA
 
 % Flags
-flag_AddDummyCoord = false; % To be able to calculate moment arms similarly to Ackland (verification)
+flag_AddDummyCoord = false; % To be able to calculate moment arms similarly to Ackland (verification). This was for the verification of the moment arms. it basically adds a fake coordinate that replicates the axis of rotation Ackland used in his experimental studies so you can compare the experimental and model moment arms better
 
 % To change JCS position and relative geometry
 conds_GHJ_geom.tran = [
@@ -31,12 +31,12 @@ conds_GHJ_geom.rot = [
 
 %% Adjust model
 
-osim_model=Model(['..\..\OpenSim\In\Models\' model_name]);
+osim_model=Model(['..\OpenSim\In\Models\' model_name]);
 init_state=osim_model.initSystem();
 
 osim_model.setName(['RSA_' rhash]);
 
-% Lock coordinates
+% Lock coordinates  - define what coordinates you want locked in your model
 coord_to_lock={'thorax_tilt' 'thorax_list' 'thorax_rotation'...
     'thorax_tx' 'thorax_ty' 'thorax_tz'};
 
@@ -51,7 +51,7 @@ end
 clear i_coord
 
 %% Add CoordinateActuators (or Reserve) depending if muscles are used in % simulation (torque_flag == false)
-if flag_useTorque==true
+if flag_useTorque==true %would typically only replace muscles if doing prototyping and want to remove added computational complexity of muscles
 
         % Remove Muscles and replace with Actuators
         createTorqueDrivenModel(osim_model,...
@@ -101,7 +101,7 @@ else
 end
 clear i_coord
 
-%% Remove Rotator Cuff muscles (SUPSP, INFSP, SUBSC, TMIN)
+%% Remove Rotator Cuff muscles (SUPSP, INFSP, SUBSC, TMIN) - in future may not remove all of cuff or may keep all but weaken it
 if flag_keepRC == false
 
     osim_model.updForceSet.remove(osim_model.getMuscles.get('SUPSP'));
@@ -159,7 +159,7 @@ for i_joint = 1:numel(joints_to_alter)
     elseif strcmp(joints_to_alter{i_joint},'unrotscap')
 
         % Acromion offset
-        acromion_offset = importdata(['..\..\SSM\Scapulas\stl_aligned\' model_SSM '_acromion_offset.txt'], ' ');
+        acromion_offset = importdata(['..\SSM\Scapulas\stl_aligned\' model_SSM '_acromion_offset.txt'], ' ');
 
         unrotscap_inParent_tran = osim_model.updJointSet.get(joints_to_alter{i_joint}).get_frames(0).get_translation();
 
@@ -245,9 +245,9 @@ if flag_AddDummyCoord == true
     coord_func.setCoefficients(coeffs);
     shoulder2_dc.upd_SpatialTransform().upd_rotation3.set_function(coord_func);
 end
-%% Update muscle locationtions and (initial) via-point locations
+%% Update muscle locations and (initial) via-point locations
 % SSM scapula muscle locations
-muscle_locs = importdata(['..\..\SSM\Scapulas\stl_aligned\' model_SSM '_muscle_coords.txt'], ' ');
+muscle_locs = importdata(['..\SSM\Scapulas\stl_aligned\' model_SSM '_muscle_coords.txt'], ' ');
 muscle_names = {'DELT2',...
     'DELT3', ...
     'TRP2',...
@@ -289,7 +289,7 @@ for i_muscle = 0:muscle_set.getSize()-1
 
         body_of_point = point.getBody().getName();
 
-        % Skip if point isn' attached to <scapula>
+        % Skip if point isn't attached to <scapula>
         if ~strcmp(char(body_of_point), 'scapula')
             continue
         end
@@ -348,25 +348,27 @@ for i_muscle = 0:muscle_set.getSize()-1
     clear muscle muscle_PathPointSet point body_of_point point_downCast location_Vec3
 end
 
-% Skip if not replaceing muscle model
-if flag_ReplaceMuscles == true
+% Skip if not replacing muscle model
+if flag_ReplaceMuscles == true  %must be replaced for any Moco simulations (tracking or predictive)
 
     DeGrooteFregly2016Muscle.replaceMuscles(osim_model);
 
     % Skip this if muscles have been replaced
     if flag_useTorque==false
 
-        % Make problems easier to solve by strengthening the Model and widening the active force-length curve.
+        % Make problems easier to solve by strengthening the Model and
+        % widening the active force-length curve. Code is where but
+        % currently no adjustments being made.
         for m = 0:osim_model.getMuscles().getSize()-1
             musc = osim_model.updMuscles().get(m);
             musc.setMinControl(0);
             musc.set_ignore_activation_dynamics(false);
             musc.set_ignore_tendon_compliance(false);
             % Strengthens Model
-            musc.set_max_isometric_force(1 * musc.get_max_isometric_force());
+            musc.set_max_isometric_force(1 * musc.get_max_isometric_force());  %currently scaling by 1 so no change in strength
             dgf = DeGrooteFregly2016Muscle.safeDownCast(musc);
             % Widens Muscle F-L curve
-            dgf.set_active_force_width_scale(1.5);
+            dgf.set_active_force_width_scale(1.5);  %this widens FL curve by 50% but this is a common assumption drawn from Fox et al's work.
             dgf.set_tendon_compliance_dynamics_mode('implicit');
         end
 
@@ -440,7 +442,7 @@ pause(0.250 + rand*0.250)
 
 date_time_now = datestr(datetime);
 
-f_id = fopen('..\..\OpenSim\In\Models\RTSA_Adjusted\RTSA_model_log.txt', 'a+');
+f_id = fopen('..\OpenSim\In\Models\RTSA_Adjusted\RTSA_model_log.txt', 'a+');
 
 
 fprintf(f_id, '#########################################################\n\n');
@@ -485,11 +487,11 @@ fprintf(f_id, ['\nModel RTSA configuration (values in m and degrees): \r\n' ...
 fclose(f_id);
 
 % Write OpenSim model
-new_model_file = ['..\..\OpenSim\In\Models\RTSA_Adjusted\FSModel_GHJoint_' rhash '.osim'];
+new_model_file = ['..\OpenSim\In\Models\RTSA_Adjusted\FSModel_GHJoint_' rhash '.osim'];
 osim_model.print(new_model_file);
 
 disp('OpenSim model with adjusted GHJ definition and geomtry for RTSA has been defined and saved at: ')
-disp(['..\..\OpenSim\In\Models\RTSA_Adjusted\FSModel_GHJoint_' rhash '.osim'])
+disp(['..\OpenSim\In\Models\RTSA_Adjusted\FSModel_GHJoint_' rhash '.osim'])
 
 disp('GHJ joint position (x y z) in Parent (Scapula) is: ')
 disp(GHJ_in_parent)

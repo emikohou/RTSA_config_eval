@@ -2,24 +2,36 @@ function scapula = glenoidGeom(R, hemi_gle_offsets, model_SSM, rhash, flag_corre
 
 %% Flags 
 % What part of the glenoid will be used to calcuate glenoid plane? (global
-% [= true] or lower [= flase] for RSA) -- lower is the emerging standard as
+% (i.e. full glenoid) [= true] or lower [= false] for RSA) -- lower is the emerging standard as
 % laid out by this paper: https://www.jshoulderelbow.org/article/S1058-2746(18)30937-6/fulltext
 flag_globalGlenoid = true;
+
 % Use global glenoid norm calculation for lower RSA positioning? (Clinical
 % Study Jaylan will focus on) INCLUDE flag_AthwalOr12mm = true
 flag_global4LowerGlenoid = false;
+    %to be clear, for Jaylan's study, we are interested in what happens if
+    %person calculated glenoid plane using full glenoid (e.g. global) when
+    %they plan to place the implant in the lower half vs the new way of using 
+    % only the lower half to calculate the glenoid plane and then placing 
+    % it in the lower half. We will test two conditions for each configuration:
+    % 1. The 'incorrect' calculation is represented by this combination of flags
+    %"flag_globalGlenoid == false && flag_global4LowerGlenoid == true". 
+    % 2. The correct calculation for the new "RSA angle" method for when you want
+    %to place the baseplate in the lower half is achieved using the
+    %conditions "flag_globalGlenoid == false && flag_global4LowerGlenoid ==
+    %false".
 
 % Inferior overhang (used in Athwal for calculation otherwise just
-% visualisation)
+% visualisation of a point at this distance)
 overhang = 0.007;
 % Lateral offset from inferior rim (used in Athwal for calculation otherwise just
-% visualisation)
+% visualisation of a point at this distance)
 offset = 0.002;
 
 %% Set up
 % Load in and configure points of Scapula .stl
 % NOTE: not the most efficient way of handling the .stl
-[x, y, z] = stlreadXYZ(['..\..\SSM\Scapulas\stl_aligned\' model_SSM '.stl']);
+[x, y, z] = stlreadXYZ(['..\SSM\Scapulas\stl_aligned\' model_SSM '.stl']);
 
 figure(10);
 
@@ -49,11 +61,16 @@ view(3)
 hold on;
 
 
-%% Fit plane to glenoid points
-if flag_globalGlenoid == true && flag_global4LowerGlenoid == false
+%% Fit plane to glenoid points 
+% Note: the calculations in the first and second if statement section are
+% the same but using different amounts of the glenoid surface points while
+% the third part of the if statement does both sets of calculations done in
+% parts 1 and 2 and this case is used for Jaylan's study as described in
+% comments above.
+if flag_globalGlenoid == true && flag_global4LowerGlenoid == false %this option does what we did in our first paper...calculate the glenoid plane from all the global glenoid (all of it) and position the construct based of those measurements
 
-    scapula_stl = stlread(['..\..\SSM\Scapulas\stl_aligned\' model_SSM '.stl']);
-    load('glenoid_idx_global.mat')
+    scapula_stl = stlread(['..\SSM\Scapulas\stl_aligned\' model_SSM '.stl']);
+    load('glenoid_idx_global.mat') %Specify indices of glenoid pts in scapula SSM
 
     glenoid_stl.Points = scapula_stl.Points(glenoid_idx,:);
 
@@ -85,7 +102,7 @@ if flag_globalGlenoid == true && flag_global4LowerGlenoid == false
 
     glenSphere_lsq.Radius = 0.030;
 
-    % Initial guess - progection from center to 30 mm out
+    % Initial guess - projection from center to 30 mm out
     x0 = glenoid_barycentre + glenoid_normal*0.030;
     x0(4) = glenSphere_lsq.Radius;
 
@@ -127,9 +144,9 @@ if flag_globalGlenoid == true && flag_global4LowerGlenoid == false
     scatter3(glenoid_barycentre(1), glenoid_barycentre(2), glenoid_barycentre(3), 'filled', 'cyan')
     line([glenoid_barycentre(1) glenSphere_lsq.Center(1)], [glenoid_barycentre(2) glenSphere_lsq.Center(2)], [glenoid_barycentre(3) glenSphere_lsq.Center(3)],'Color', 'g', 'LineWidth', 4)
   
-elseif flag_globalGlenoid == false && flag_global4LowerGlenoid == false
+elseif flag_globalGlenoid == false && flag_global4LowerGlenoid == false  %this option corresponds to the new RSA angle method of calculate the glenoid plane from the lower glenoid and position the construct based of those measurements
 
-    scapula_stl = stlread(['..\..\SSM\Scapulas\stl_aligned\' model_SSM '.stl']);
+    scapula_stl = stlread(['..\SSM\Scapulas\stl_aligned\' model_SSM '.stl']);
     load('glenoid_idx_lower.mat')
 
 
@@ -205,12 +222,12 @@ elseif flag_globalGlenoid == false && flag_global4LowerGlenoid == false
     line([glenoid_barycentre(1) glenSphere_lsq.Center(1)], [glenoid_barycentre(2) glenSphere_lsq.Center(2)], [glenoid_barycentre(3) glenSphere_lsq.Center(3)],'Color', 'g', 'LineWidth', 4)
    
 
-elseif flag_globalGlenoid == false && flag_global4LowerGlenoid == true
+elseif flag_globalGlenoid == false && flag_global4LowerGlenoid == true  %this option is for testing the mistake of calculate the glenoid plane from all the global glenoid (all of it) and the resulting measurements (ie inclination and version) but position the construct on the lower glenoid based on the global measurements
     
     %% Calculate glenoid normal from global glenoid surface 
     % These calculations will be used later to pass to the correction of
     % the LOWER glenoid following RSA placement (lower) of glenosphere
-    scapula_stl = stlread(['..\..\SSM\Scapulas\stl_aligned\' model_SSM '.stl']);
+    scapula_stl = stlread(['..\SSM\Scapulas\stl_aligned\' model_SSM '.stl']);
     load('glenoid_idx_global.mat')
 
     glenoid_stl.Points = scapula_stl.Points(glenoid_idx,:);
@@ -345,6 +362,9 @@ end
 
 %% Calculate scapular plane
 % scap_pointCloud = pointCloud([x(:), y(:), z(:)]);
+    %work was not undertaken to replicate the contour method of the
+    %BluePrint software...but could be integrated later as Aren has done
+    %something like this.
 
 % Linear Regression method to fit plane
 x_sp = x(:);
@@ -379,7 +399,7 @@ surf(sca_plane_mesh_data.x_plane, sca_plane_mesh_data.y_plane, sca_plane_mesh_da
 
 %% Calculate supraspinatus fossa base vector
 
-load fossa_base.mat;
+load fossa_base.mat; %a list of SSM point indices manually defined as being the base of the fossa
 principal_cmp = pca([x(fossa_base.vertices(:)), y(fossa_base.vertices(:)), z(fossa_base.vertices(:))]);
 fossa_vector = principal_cmp(:,1)';
 % Plot 1st principle component vector
@@ -437,7 +457,7 @@ if bary_plane >= 1e-4
 end
 
 %% Calculate vector of glenoid and scapula plane intersection
-if flag_globalGlenoid == false && flag_global4LowerGlenoid == true
+if flag_globalGlenoid == false && flag_global4LowerGlenoid == true  %this is special 'incorrection calculation' condition for Jaylan's study 
     %% Calculate glenoid normal from global glenoid surface 
     [~, intersect_v] = plane_intersect(glenoid_plane_global.Parameters(1:3),...
         [gle_plane_global_mesh_data.x_plane(1) gle_plane_global_mesh_data.y_plane(1) gle_plane_global_mesh_data.z_plane(1)],...
@@ -499,7 +519,7 @@ if flag_globalGlenoid == false && flag_global4LowerGlenoid == true
         keyboard
     end
 
-else
+else  %this is used for the RSA angle 'correct' calculation in Jaylan's study and in the first study by Pavlos
     [~, intersect_v] = plane_intersect(glenoid_plane.Parameters(1:3),...
         [gle_plane_mesh_data.x_plane(1) gle_plane_mesh_data.y_plane(1) gle_plane_mesh_data.z_plane(1)],...
         scap_plane.Parameters(1:3),...
@@ -537,7 +557,7 @@ end
 theta = (0:0.01:1)*2*pi;
 phi = (0:0.01:1)*pi/2;
 
-% Need to rototransalte it so the the vertex is sitting on the point of
+% Need to rototranslate it so the the vertex is sitting on the point of
 % interest
 [THETA,PHI]=meshgrid(theta,phi);
 X1=R.*cos(THETA).*sin(PHI) + glenoid_barycentre(1);
@@ -580,7 +600,7 @@ glenoid_plane_normals.y_n = glenoid_plane_y_n; % Superior/inferior
 glenoid_plane_normals.z_n = glenoid_normal; % Out of plane
 glenoid_plane_normals.x_n = -cross(glenoid_plane_normals.z_n,glenoid_plane_normals.y_n); % Anterior/Posterior
 
-if flag_globalGlenoid == false && flag_global4LowerGlenoid == true
+if flag_globalGlenoid == false && flag_global4LowerGlenoid == true %again this is the 'incorrect' calculation method in Jaylan's paper described at top of this file
     glenoid_plane_normals.y_n_global = glenoid_plane_y_n_global;
     glenoid_plane_normals.z_n_global = glenoid_normal_global;
     glenoid_plane_normals.x_n_global = -cross(glenoid_plane_normals.z_n_global, glenoid_plane_normals.y_n_global); % Anterior/Posterior
@@ -613,7 +633,7 @@ end
 
 % Cache data from lower glenoid calculations in order to use global glenoid data then
 % switch back to lower values in variables
-if flag_globalGlenoid == false && flag_global4LowerGlenoid == true
+if flag_globalGlenoid == false && flag_global4LowerGlenoid == true %again this is the 'incorrect' calculation method in Jaylan's paper described at top of this file
     
     glenoid_barycentre_cached = glenoid_barycentre;
     glenoid_barycentre = glenoid_barycentre_global;
@@ -715,7 +735,7 @@ line([glenoid_barycentre(1) fossa_point_f_XZ(1)],...
     'LineWidth',4,'Color','g');
 
 % Return cached data from lower glenoid calculations to variables
-if flag_globalGlenoid == false && flag_global4LowerGlenoid == true
+if flag_globalGlenoid == false && flag_global4LowerGlenoid == true  %again this is the 'incorrect' calculation method in Jaylan's paper described at top of this file
     
     glenoid_barycentre = glenoid_barycentre_cached;
 
@@ -751,7 +771,7 @@ if flag_AthwalOr12mm == true
     [~, inf_point_idx_hemi] = min(min_hemi_points);
 
     % Get smallest Euclidian distance of glenoid rim points from projected
-    % point on -ive Y-axis. Not exact bur close ennough.
+    % point on -ive Y-axis. Not exact but close ennough.
     min_rim_points = vecnorm((glenoid_stl.Points - p_point), 2 , 2);
     [~, inf_point_idx_rim] = min(min_rim_points);
 
@@ -1026,7 +1046,7 @@ scapula = struct('glenoid_plane_normals', glenoid_plane_normals,... % x-y-z norm
     'CoR_glen', CoR_glen,...                                        % adjusted barycentre now as CoR
     'stl_scap', stl_scap);
 
-stlwrite_user(['..\..\OpenSim\In\Geometry\gle_' rhash '.stl'],...
+stlwrite_user(['..\OpenSim\In\Geometry\gle_' rhash '.stl'],...
     hemisphere_gle.XData,...
     hemisphere_gle.YData,...
     hemisphere_gle.ZData,...

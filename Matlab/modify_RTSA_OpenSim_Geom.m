@@ -147,13 +147,13 @@ flag_useParallel        = false; %should only be made true when working on local
 flag_checkPlots         = false;
 
 % If replacing Muscles with Actuators
-flag_useTorque          = false;
+flag_useTorque          = false; %would typically only replace muscles if doing prototyping and want to remove added computational complexity of muscles
 
 % If removing Rotator Cuff muscles
-flag_keepRC             = false;
+flag_keepRC             = false;  % Remove Rotator Cuff muscles (SUPSP, INFSP, SUBSC, TMIN) - in future may not remove all of cuff or may keep all but weaken it
 
 % Replace muscle models Millard2012Equilibrium with DeGrootFregly
-flag_ReplaceMuscles     = true;
+flag_ReplaceMuscles     = true; %must be replaced for any Moco simulations (tracking or predictive)
 
 % Run Moco after model is defined?
 flag_runSim             = false; %if you want to generate models but not run them than set this false

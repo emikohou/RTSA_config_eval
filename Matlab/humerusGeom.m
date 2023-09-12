@@ -1,7 +1,7 @@
 function humerus = humerusGeom(R, hemi_cup_offsets,rhash)
 %% Set up
 % Load in and configure points of Humerurs .stl
-[x, y, z] = stlreadXYZ('..\..\OpenSim\In\Geometry\humerus_resected_manifold_closed.stl');
+[x, y, z] = stlreadXYZ('..\OpenSim\In\Geometry\humerus_resected_manifold_closed.stl');
 
 figure(1);
 
@@ -35,7 +35,7 @@ hold on;
 % % % % keyboard;
 % % % %
 % % % % resection_points =  evalin('base', 'cursor_info');
-p = load('resection_points.mat');
+p = load('resection_points.mat');  %point indices manually defined as being on the resection plane
 
 %% Fit plane to resection points
 
@@ -120,7 +120,7 @@ line([resection_barycentre(1) hum_bary(1)],...
 
 norm_check_angle = vrrotvec(hum_bary_vec, resection_normal);
 
-% If angle between vectors is 0<gonia<=90 flip normal abou plane
+% If angle between vectors is 0<gonia<=90 flip normal about plane
 if norm_check_angle(4) >= 0 && norm_check_angle(4) < pi/2
     resection_normal = - resection_normal;
 
@@ -142,7 +142,7 @@ if bary_plane >= 1e-4
     keyboard
 end
 
-% Need to rototransalte it so the the vertex is sitting on the point of
+% Need to rototranslate it so the the vertex is sitting on the point of
 % interest
 [THETA,PHI]=meshgrid(theta,phi);
 X1=R.*cos(THETA).*sin(PHI) + resection_barycentre(1);
@@ -159,7 +159,7 @@ axis equal
 
 
 
-% Quck workaround to rotate - Use the graphic object handler and then
+% Quick workaround to rotate - Use the graphic object handler and then
 % extract the point data X-Y-Z
 
 % Find axis and angle of rotation between plane normal and where hemisphere
@@ -361,7 +361,7 @@ humerus = struct('resection_plane_normals', resection_plane_normals,...     % x-
     'translated_cup_base', translated_cup_base,...                      % base of humeral cup (should be placed d = R from CoR_glen)
     'stl_hum', stl_hum);
 
-stlwrite_user(['..\..\OpenSim\In\Geometry\cup_' rhash '.stl'],...
+stlwrite_user(['..\OpenSim\In\Geometry\cup_' rhash '.stl'],...
     hemisphere_hum.XData,...
     hemisphere_hum.YData,...
     hemisphere_hum.ZData,...
