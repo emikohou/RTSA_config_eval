@@ -36,22 +36,34 @@ time_i = datetime;
 %% Set-up
 set(0,'DefaultFigureVisible','on');
 %%%%%%%%%%%%%%%%% Create parameter combinations for loops %%%%%%%%%%%%%%%%%
-design_param.diameter                   = {0.039};
+%parameters in this section are in meters and degrees
+%If multiple values needed for a variable, separate the values by a comma
+design_param.diameter                   = {0.039,0.045}; % Glenosphere diameter
 
-design_param.glenoid_base_off           = {0}; % Equivelant to baseplate offset
+%If using the Athwal method the below glenoid parameters will be ignored
+%and instead calculated using methods contained below; search for 
+%"flag_AthwalOr12mm" variable to see methods.
+
+%baseplate translations
+design_param.glenoid_base_off           = {0}; % Equivelant to baseplate offset/lateralization
 design_param.glenoid_prox_dist          = {0};
 design_param.glenoid_ant_post           = {0};
 
+%baseplate rotations
 design_param.glenoid_sup_inf_incl       = {0};
 design_param.glenoid_ant_retro_version  = {0};
 
+%humerus translations
 design_param.humerus_base_off           = {0.001}; % keep to 1 mm to avoid penetrating the humeral .stl with the cup .stl
 design_param.humerus_prox_dist          = {0};
 design_param.humerus_ant_post           = {0};
 
+%Humerus rotations
 design_param.humerus_sup_inf_incl       = {12.5};
 design_param.humerus_ant_retro_version  = {0};
 
+%List combinations of modes of variation you want to simulate with each
+%combination on a new line.
 scapula_morphologies = {
     'm3_-3_m2_-3',...
 %     'm3_-3_m2_3',...
@@ -83,10 +95,11 @@ scapula_morphologies = {
 % Re-shufle morphology order for evaluation purposes
 % scapula_morphologies = scapula_morphologies(randperm(numel(scapula_morphologies)));
 
-motion_tasks                            = {
+%Parameters of each named task is defined in addTaskBounds.m
+motion_tasks = {
     'UpwardReach',...
-    %                                            'LateralReach',...
-    %                                            'HairTouch'
+%     'LateralReach',...
+%     'HairTouch'
     };
 
 % Create permutation matrix
@@ -106,7 +119,8 @@ param_matrix= allcomb( ...
     motion_tasks...
     );
 
-% Split matrix
+% Split matrix - splits all values from the permutation matrix back into
+% individual geometric parameter variables for later use
 param_diameter              = param_matrix(:,1);
 param_glenoid_base_off      = param_matrix(:,2);
 param_glenoid_prox_dist     = param_matrix(:,3);
@@ -127,7 +141,7 @@ param_tasks                 = param_matrix(:,end);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Flags %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % If use parallel with 2 workers (18 threads/worker) to batch job
-flag_useParallel        = false;
+flag_useParallel        = false; %should only be made true when working on local workstations not on Compute Canada Cluster 
 
 % If should plot intermediate plots for checking
 flag_checkPlots         = false;
@@ -142,13 +156,13 @@ flag_keepRC             = false;
 flag_ReplaceMuscles     = true;
 
 % Run Moco after model is defined?
-flag_runSim             = true;
+flag_runSim             = false; %if you want to generate models but not run them than set this false
 
-% True =  7 mm overhang assuming 25 mm baseplate and 39 mm glenosphere.
-% False = 12 mm rule  inferior rim to central peg.
+% True =  7 mm inferior overhang assuming 25 mm baseplate and 39 mm glenosphere.
+% False = 12 mm rule inferior glenoid rim to central baseplate peg.
 flag_AthwalOr12mm = true;
 
-if flag_AthwalOr12mm ==true
+if flag_AthwalOr12mm == true
     % Correct morphology's Version / Inclination angles and 12 mm rule
     flag_correctVersion     = false;
     flag_correctInclination = true;
@@ -162,7 +176,10 @@ else
     flag_correctLateral     = false;
 end
 
-% Optimise DELT1, DELT2 and DELT3 via points
+% Optimise DELT1, DELT2 and DELT3 via points, this was done once at start
+% of development process and should not be done again unless specifically
+% trying a different method for placing via points (talk to Josh before
+% doing)
 flag_viaPointOpt        = false;
 
 if flag_viaPointOpt == true
