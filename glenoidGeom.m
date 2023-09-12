@@ -2,7 +2,8 @@ function scapula = glenoidGeom(R, hemi_gle_offsets, model_SSM, rhash, flag_corre
 
 %% Flags 
 % What part of the glenoid will be used to calcuate glenoid plane? (global
-% [= true] or lower [= flase] for RSA)
+% [= true] or lower [= flase] for RSA) -- lower is the emerging standard as
+% laid out by this paper: https://www.jshoulderelbow.org/article/S1058-2746(18)30937-6/fulltext
 flag_globalGlenoid = true;
 % Use global glenoid norm calculation for lower RSA positioning? (Clinical
 % Study Jaylan will focus on) INCLUDE flag_AthwalOr12mm = true

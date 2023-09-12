@@ -38,7 +38,7 @@ set(0,'DefaultFigureVisible','on');
 %%%%%%%%%%%%%%%%% Create parameter combinations for loops %%%%%%%%%%%%%%%%%
 %parameters in this section are in meters and degrees
 %If multiple values needed for a variable, separate the values by a comma
-design_param.diameter                   = {0.039,0.045}; % Glenosphere diameter
+design_param.diameter                   = {0.039}; % Glenosphere diameter
 
 %If using the Athwal method the below glenoid parameters will be ignored
 %and instead calculated using methods contained below; search for 
@@ -195,7 +195,7 @@ if flag_useParallel == true
 
     % Number of Workers
     n_workers     = 2;
-    n_threads     = 36/n_workers;
+    n_threads     = 36/n_workers; %36 is number of logical processors on Workstaion1 
 
     % Specify maximum number of computational threads (?)
     % maxNumCompThreads(n_threads);
