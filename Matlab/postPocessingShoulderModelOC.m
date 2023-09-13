@@ -77,8 +77,8 @@ legend(coords_to_plot,...
 
 
 % Save plot
-saveas(figure(10),['..\..\OpenSim\Out\Moco\' print_folder_name '\coordinates.tif'], 'tif' )
-saveas(figure(10),['..\..\OpenSim\Out\Moco\' print_folder_name '\coordinates.fig'], 'fig' )
+saveas(figure(10),['..\OpenSim\Out\Moco\' print_folder_name '\coordinates.tif'], 'tif' )
+saveas(figure(10),['..\OpenSim\Out\Moco\' print_folder_name '\coordinates.fig'], 'fig' )
 close;
 
 
@@ -138,8 +138,8 @@ else
 end
 
 
-saveas(figure(11),['..\..\OpenSim\Out\Moco\' print_folder_name '\activations.tiff'], 'tif' )
-saveas(figure(11),['..\..\OpenSim\Out\Moco\' print_folder_name '\activations.fig'], 'fig' )
+saveas(figure(11),['..\OpenSim\Out\Moco\' print_folder_name '\activations.tiff'], 'tif' )
+saveas(figure(11),['..\OpenSim\Out\Moco\' print_folder_name '\activations.fig'], 'fig' )
 
 close;
 
@@ -192,8 +192,8 @@ legend({'Glenoid Anterior (+) - Posterior (-) Shear',...
 
 
 % Save plot
-saveas(figure(12),['..\..\OpenSim\Out\Moco\' print_folder_name '\JRA.tif'], 'tif' )
-saveas(figure(12),['..\..\OpenSim\Out\Moco\' print_folder_name '\JRA.fig'], 'fig' )
+saveas(figure(12),['..\OpenSim\Out\Moco\' print_folder_name '\JRA.tif'], 'tif' )
+saveas(figure(12),['..\OpenSim\Out\Moco\' print_folder_name '\JRA.fig'], 'fig' )
 close;
 
 

@@ -251,13 +251,13 @@ solver.set_optim_max_iterations(3000);
 % Set guess from previous (~ good) solution. This will need
 % alterations when other conditions are testeed/
 if flag_keepRC == true
-    solver.setGuessFile('..\..\OpenSim\In\Moco\initial_guess\initial_guess_LatReach_RC_1.sto');
+    solver.setGuessFile('..\OpenSim\In\Moco\initial_guess\initial_guess_LatReach_RC_1.sto');
 elseif flag_keepRC == false && strcmp(task_name, 'LateralReach')
-    solver.setGuessFile('..\..\OpenSim\In\Moco\initial_guess\initial_guess_LatReach_RC_0.sto');
+    solver.setGuessFile('..\OpenSim\In\Moco\initial_guess\initial_guess_LatReach_RC_0.sto');
 elseif flag_keepRC == false && strcmp(task_name, 'UpwardReach')
-    solver.setGuessFile('..\..\OpenSim\In\Moco\initial_guess\initial_guess_UpwardReach_RC_0.sto');
+    solver.setGuessFile('..\OpenSim\In\Moco\initial_guess\initial_guess_UpwardReach_RC_0.sto');
 elseif flag_keepRC == false && strcmp(task_name, 'HairTouch')
-    solver.setGuessFile('..\..\OpenSim\In\Moco\initial_guess\initial_guess_HairTouch_RC_0.sto');
+    solver.setGuessFile('..\OpenSim\In\Moco\initial_guess\initial_guess_HairTouch_RC_0.sto');
 end
 
 %% Solve
@@ -283,13 +283,13 @@ end
 
 print_folder_name = ['sim_' rhash];
 
-if ~exist(['..\..\OpenSim\Out\Moco\' print_folder_name '\'],"dir")
-    mkdir(['..\..\OpenSim\Out\Moco\' print_folder_name '\'])
+if ~exist(['..\OpenSim\Out\Moco\' print_folder_name '\'],"dir")
+    mkdir(['..\OpenSim\Out\Moco\' print_folder_name '\'])
 end
 
-solution_file = ['..\..\OpenSim\Out\Moco\' print_folder_name '\MocoSol_' task_name '.sto'];
+solution_file = ['..\OpenSim\Out\Moco\' print_folder_name '\MocoSol_' task_name '.sto'];
 
-predicted_solution.write(['..\..\OpenSim\Out\Moco\' print_folder_name '\MocoSol_' task_name '.sto']);
+predicted_solution.write(['..\OpenSim\Out\Moco\' print_folder_name '\MocoSol_' task_name '.sto']);
 
 date_time_now = datestr(datetime);
 
@@ -318,7 +318,7 @@ txt_table = splitvars(table(string(date_time_now),...
     R,...
     'VariableNames',var_names_table));
 
-writetable(txt_table, '..\..\OpenSim\In\Models\RTSA_Adjusted\RTSA_model_log_table.txt', 'WriteMode', 'Append');
+writetable(txt_table, '..\OpenSim\In\Models\RTSA_Adjusted\RTSA_model_log_table.txt', 'WriteMode', 'Append');
 
 %% ANALYSIS
 
@@ -339,7 +339,7 @@ time_array = ArrayDouble;
 states_storage.getTimeColumn(time_array);
 
 % Set up AnalyzeTool
-analyzeTool=AnalyzeTool('..\..\OpenSim\In\Setup_files\Analysis\template_JRA_FR_MA.xml',0);
+analyzeTool=AnalyzeTool('..\OpenSim\In\Setup_files\Analysis\template_JRA_FR_MA.xml',0);
 analyzeTool.setName('Moco');
 analyzeTool.setInitialTime(0);
 analyzeTool.setFinalTime(time_array.getLast);
@@ -347,7 +347,7 @@ analyzeTool.setFinalTime(time_array.getLast);
 analyzeTool.setStatesFileName(solution_file);
 %             analyzeTool.setModel(osim_model);
 analyzeTool.setModelFilename(model_file)
-analyzeTool.setResultsDir(['..\..\OpenSim\Out\Moco\' print_folder_name '\']);
+analyzeTool.setResultsDir(['..\OpenSim\Out\Moco\' print_folder_name '\']);
 
 JR_Analysis = analyzeTool.updAnalysisSet.get(0);
 JR_downCast = JointReaction.safeDownCast(JR_Analysis);
@@ -370,7 +370,7 @@ runTool.run();
 
 %% POST PROCESSING
 
-jra_filename = ['..\..\OpenSim\Out\Moco\' print_folder_name '\Moco_JointReaction_ReactionLoads.sto'];
+jra_filename = ['..\OpenSim\Out\Moco\' print_folder_name '\Moco_JointReaction_ReactionLoads.sto'];
 postPocessingShoulderModelOC(solution_file, print_folder_name, jra_filename);
 
 

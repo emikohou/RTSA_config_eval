@@ -148,6 +148,10 @@ flag_checkPlots         = false;
 
 % If replacing Muscles with Actuators
 flag_useTorque          = false; %would typically only replace muscles if doing prototyping and want to remove added computational complexity of muscles
+    %note that this is not operation if set True: need to implement code to
+    %define values for "coords_to_actuate, actuator_values,
+    %actuator_controls" variables in order to know which muscles to replace
+    %and with what parameters    
 
 % If removing Rotator Cuff muscles
 flag_keepRC             = false;  % Remove Rotator Cuff muscles (SUPSP, INFSP, SUBSC, TMIN) - in future may not remove all of cuff or may keep all but weaken it
@@ -156,7 +160,7 @@ flag_keepRC             = false;  % Remove Rotator Cuff muscles (SUPSP, INFSP, S
 flag_ReplaceMuscles     = true; %must be replaced for any Moco simulations (tracking or predictive)
 
 % Run Moco after model is defined?
-flag_runSim             = false; %if you want to generate models but not run them than set this false
+flag_runSim             = true; %if you want to generate models but not run them than set this false
 
 % True =  7 mm inferior overhang assuming 25 mm baseplate and 39 mm glenosphere.
 % False = 12 mm rule inferior glenoid rim to central baseplate peg.
@@ -386,7 +390,7 @@ elseif flag_useParallel == false
             flag_ReplaceMuscles);
 
         % Save out vars for the runRTSAtrack.m or runRTSAsims.m function on Cluster
-        save(['..\..\OpenSim\In\Models\RTSA_Adjusted\' rhash],...
+        save(['..\OpenSim\In\Models\RTSA_Adjusted\' rhash],...
             'flag_keepRC', ...
             'task_name', ...
             'GHJ_in_parent', ...
@@ -403,9 +407,9 @@ elseif flag_useParallel == false
 
         close all
 
-        % Run OpenSim moco for predictive simulation
+        % Run OpenSim moco for predictive/tracking simulations
         if flag_runSim == true
-            runRTSAtrack(model_file,...
+            runRTSAtrack(model_file,...   %replace this function with runRTSAsims if you want to do predictive instead of tracking
                 task_name,...
                 GHJ_in_parent,...
                 GHJ_in_child,...

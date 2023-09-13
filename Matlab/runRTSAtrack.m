@@ -17,9 +17,9 @@ track.setModel(ModelProcessor(osim_model));
 % Set reference states and use them as guess (these are the the predictive
 % simulations of the average scapula)
 if strcmp(task_name, 'UpwardReach')
-    track.setStatesReference(TableProcessor('..\..\OpenSim\In\Moco\tracking_states\sim_U94wbx134tf\RSA_U94wbx134tf_StatesReporter_states.sto'))
+    track.setStatesReference(TableProcessor('..\OpenSim\In\Moco\tracking_states\sim_U94wbx134tf\RSA_U94wbx134tf_StatesReporter_states.sto'))
 elseif strcmp(task_name, 'LateralReach')
-    track.setStatesReference(TableProcessor('..\..\OpenSim\In\Moco\tracking_states\sim_J40xoh155cm\RSA_J40xoh155cm_StatesReporter_states.sto'))
+    track.setStatesReference(TableProcessor('..\OpenSim\In\Moco\tracking_states\sim_J40xoh155cm\RSA_J40xoh155cm_StatesReporter_states.sto'))
 end
 
 track.set_apply_tracked_states_to_guess(true)
@@ -270,13 +270,13 @@ end
 
 print_folder_name = ['sim_' rhash];
 
-if ~exist(['..\..\OpenSim\Out\Moco\' print_folder_name '\'],"dir")
-    mkdir(['..\..\OpenSim\Out\Moco\' print_folder_name '\'])
+if ~exist(['..\OpenSim\Out\Moco\' print_folder_name '\'],"dir")
+    mkdir(['..\OpenSim\Out\Moco\' print_folder_name '\'])
 end
 
-solution_file = ['..\..\OpenSim\Out\Moco\' print_folder_name '\MocoSol_' task_name '.sto'];
+solution_file = ['..\OpenSim\Out\Moco\' print_folder_name '\MocoSol_' task_name '.sto'];
 
-predicted_solution.write(['..\..\OpenSim\Out\Moco\' print_folder_name '\MocoSol_' task_name '.sto']);
+predicted_solution.write(['..\OpenSim\Out\Moco\' print_folder_name '\MocoSol_' task_name '.sto']);
 
 % Read individual model table and .txt in logs
 
@@ -310,7 +310,7 @@ txt_table = splitvars(table(string(date_time_now),...
     R,...
     'VariableNames',var_names_table));
 
-writetable(txt_table, '..\..\OpenSim\In\Models\RTSA_Adjusted\RTSA_model_log_table.txt', 'WriteMode', 'Append');
+writetable(txt_table, '..\OpenSim\In\Models\RTSA_Adjusted\RTSA_model_log_table.txt', 'WriteMode', 'Append');
 
 %% ANALYSIS
 
@@ -331,7 +331,7 @@ time_array = ArrayDouble;
 states_storage.getTimeColumn(time_array);
 
 % Set up AnalyzeTool
-analyzeTool=AnalyzeTool('..\..\OpenSim\In\Setup_files\Analysis\template_JRA_FR_MA.xml',0);
+analyzeTool=AnalyzeTool('..\OpenSim\In\Setup_files\Analysis\template_JRA_FR_MA.xml',0);
 analyzeTool.setName('Moco');
 analyzeTool.setInitialTime(0);
 analyzeTool.setFinalTime(time_array.getLast);
@@ -339,7 +339,7 @@ analyzeTool.setFinalTime(time_array.getLast);
 analyzeTool.setStatesFileName(solution_file);
 %             analyzeTool.setModel(osim_model);
 analyzeTool.setModelFilename(model_file)
-analyzeTool.setResultsDir(['..\..\OpenSim\Out\Moco\' print_folder_name '\']);
+analyzeTool.setResultsDir(['..\OpenSim\Out\Moco\' print_folder_name '\']);
 
 JR_Analysis = analyzeTool.updAnalysisSet.get(0);
 JR_downCast = JointReaction.safeDownCast(JR_Analysis);
@@ -362,7 +362,7 @@ runTool.run();
 
 %% POST PROCESSING
 
-jra_filename = ['..\..\OpenSim\Out\Moco\' print_folder_name '\Moco_JointReaction_ReactionLoads.sto'];
+jra_filename = ['..\OpenSim\Out\Moco\' print_folder_name '\Moco_JointReaction_ReactionLoads.sto'];
 postPocessingShoulderModelOC(solution_file, print_folder_name, jra_filename);
 
 
