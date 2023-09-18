@@ -1,4 +1,4 @@
-function runRTSAtrack(model_file, task_name, GHJ_in_parent, GHJ_in_child,  hemi_gle_offsets, hemi_cup_offsets, R, rhash, model_SSM)
+function runRTSAtrack(model_file, flag_keepRC, task_name, GHJ_in_parent, GHJ_in_child,  hemi_gle_offsets, hemi_cup_offsets, R, rhash, model_SSM)
 %% Set-up
 
 % Import OpenSim 4.3 libraries

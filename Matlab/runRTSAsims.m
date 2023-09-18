@@ -249,7 +249,7 @@ solver.set_optim_max_iterations(3000);
 % % % solver.setGuess(in_guess);
 
 % Set guess from previous (~ good) solution. This will need
-% alterations when other conditions are testeed/
+% alterations when other conditions are tested/
 if flag_keepRC == true
     solver.setGuessFile('..\OpenSim\In\Moco\initial_guess\initial_guess_LatReach_RC_1.sto');
 elseif flag_keepRC == false && strcmp(task_name, 'LateralReach')
